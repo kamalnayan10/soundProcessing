@@ -3,7 +3,7 @@ First neuron implementation from scratch in python
 
 take input -> inputs and weights
 calculate sum = summation(inputs*weights)
-calulate activation function(sigmoid function)
+calculate activation function(sigmoid function)
 
 get output
 
