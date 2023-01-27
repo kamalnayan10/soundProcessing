@@ -21,32 +21,77 @@ class MLP:
             w = np.random.rand(layers[i] , layers[i+1])
             self.weights.append(w)
 
+        activations = []
+
+        for i in range(len(layers)):
+            a = np.zeros(layers[i])
+            activations.append(a)
+
+        self.activations = activations
+
+        derivatives = []
+
+        for i in range(len(layers) - 1):
+            d = np.zeros((layers[i] , layers[i+1]))
+            derivatives.append(d)
+
+        self.derivatives = derivatives
+
     def forward_propagate(self , inputs):
         
         activations = inputs
+        self.activations[0] = inputs
 
-        for w in self.weights:
+        for i,w in enumerate(self.weights):
             # Calculate the net inputs
             net_inputs = np.dot(activations , w)
             
             # Calculate the activation
             activations = self.sigmoid(net_inputs)
+            self.activations[i+1] = activations
 
         return activations
 
+    def back_propagate(self , error , verbose = False):
+        """
+            FORMULAS USED
+
+            dE/dW_[i] = (y - a_[i+1]) s'(h_[i+!]) a_[i]
+
+            s'(h_[i+1]) = s(h_[i+1])(1-s(h_[i+1]))
+
+            s(h_[i+1]) = a_[i+1]
+
+
+            dE/dW_[i-1] = (y - a_[i+1]) s'(h_[i+1]) W_[i] s'(h_[i]) a_[i-1]
+         """
+
+        for i in reversed(range(len(self.derivatives))):
+            activations = self.activations[i+1]
+
+            delta = error*self.sigmoid_derivative(activations)
+            delta_reshaped = delta.reshape(delta.shape[0] , -1).T
+
+            cur_activations = self.activations[i]
+            cur_activations_reshaped = cur_activations.reshape(cur_activations.shape[0] , -1)
+
+            self.derivatives[i] = np.dot(cur_activations_reshaped,delta_reshaped)
+
+            error = np.dot(delta , self.weights[i].T)
+
+            if verbose:
+                print(f"Derivatives for W{i} : {self.derivatives[i]}")
+        
+        return error
+
+
     def sigmoid(self , x):
         return 1/(1+np.exp(-x))
+    
+    def sigmoid_derivative(self , x):
+        return x*(1-x)
+
+
 
 if __name__ == "__main__":
-    # Create a MLP
-    mlp = MLP()
-
-    #Create inputs
-    inputs = np.random.rand(mlp.num_inputs)
-
-    #perform forward propagation
-    outputs = mlp.forward_propagate(inputs)
-
-    #print the results
-    print(f"The NN inputs are: {inputs}")
-    print(f"The NN output is: {outputs}")
+    pass
