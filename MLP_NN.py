@@ -1,5 +1,5 @@
 """
-Implementing a MLP NN(Multi Level Perception Neural Network) with forward propagation
+Implementing a MLP NN(Multi Level Perception Neural Network)
 """
 
 import numpy as np
